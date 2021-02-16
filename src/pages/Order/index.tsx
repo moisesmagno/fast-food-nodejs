@@ -3,7 +3,7 @@ import { FaShoppingBasket } from 'icons-react/fa';
 
 import Nav from '../../components/Header';
 
-import { Section, Header } from './styles';
+import { Section, ListProducts } from './styles';
 
 const Order: React.FC = () => (
     <>
@@ -23,9 +23,44 @@ const Order: React.FC = () => (
                 </div>
             </header>
         </Section>
+        <ListProducts>
+            <div>
+                <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
+                <div>
+                    <h2>Nome do produto</h2>
+                    <p>Descrição do produto!</p>
+                    <span>R$ 150,00</span>
+                </div>
+                <button>
+                    Adicionar
+                </button>
+            </div>
+
+            <div>
+                <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
+                <div>
+                    <h2>Nome do produto</h2>
+                    <p>Descrição do produto!</p>
+                    <span>R$ 150,00</span>
+                </div>
+                <button>
+                    Adicionar
+                </button>
+            </div>
+
+            <div>
+                <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
+                <div>
+                    <h2>Nome do produto</h2>
+                    <p>Descrição do produto!</p>
+                    <span>R$ 150,00</span>
+                </div>
+                <button>
+                    Adicionar
+                </button>
+            </div>
+        </ListProducts>
     </>
 )
-
-//https://react-icons.github.io/react-icons/icons?name=fa
 
 export default Order;
