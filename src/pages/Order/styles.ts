@@ -312,3 +312,13 @@ export const ContentButton = styled.section`
             }
     }
 `;
+
+export const Uploaded = styled.span`
+    font-weight: bold;
+    font-size: 30px;
+    color: rgba(0,0,0,0.6);
+    width: 100%;
+    text-align: center;
+    display: block;
+    margin-top: 70px;
+`;

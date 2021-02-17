@@ -4,7 +4,7 @@ import { FaShoppingBasket, FaWindowClose } from 'icons-react/fa';
 
 import Nav from '../../components/Header';
 
-import { Section, ListProducts, ModalOrderClose, PaymentAndTotal, TypePayment, Total, ContentButton } from './styles';
+import { Section, ListProducts, ModalOrderClose, PaymentAndTotal, TypePayment, Total, ContentButton, Uploaded } from './styles';
 
 interface Products {
     id: number;
@@ -12,6 +12,7 @@ interface Products {
     description: string;
     price: number;
     image: string;
+    pathImage: string;
 }
 
 const Order: React.FC = () => {
@@ -56,11 +57,13 @@ const Order: React.FC = () => {
                     </div>
                 </header>
             </Section>
-            <ListProducts>
+            
+            { (products.length > 0) ? (
+            <ListProducts>            
                 { 
                     products.map(product => (
                         <div key={ product.id }>
-                            <img src={ product.image } alt={ product.name }/>
+                            <img src={ product.pathImage +''+product.image } alt={ product.name }/>
                             <div>
                                 <h2>{ product.name }</h2>
                                 <p>{ product.description }</p>
@@ -72,8 +75,8 @@ const Order: React.FC = () => {
                         </div>
                     ))
                 }
-                
             </ListProducts>
+            ):(<Uploaded>Carregando menu ...</Uploaded>) }
 
             { modal && (
                 <ModalOrderClose>
