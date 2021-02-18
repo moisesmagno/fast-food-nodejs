@@ -1,122 +1,138 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+
+import api from '../../services/api';
 
 import Header from '../../components/Header';
 
 import { Dashboard, OrdersList } from './styles';
 
-const Kitchen: React.FC = () => (
-    <>
-        <Header />
-        <Dashboard>
-            <h1><span>5</span> Pedidos a preparar :)</h1>
-        </Dashboard>
-        
-        <OrdersList>
-            <ul>
-                <li>
-                    <header>
-                        <h2>Moisés Escurra</h2>
-                        <button>Dar baixa</button>
-                    </header>
-                    <div>
-                        <ul>
-                            <li>
-                                <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
-                                <div>
-                                    <h3>Nome do produto</h3>
-                                    <h4>Observações!</h4>
-                                    <p>bla bla bla bla bla bla bla bla.</p>
-                                </div>
-                            </li>
-                            <li>
-                                <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
-                                <div>
-                                    <h3>Nome do produto</h3>
-                                    <h4>Observações!</h4>
-                                    <p>bla bla bla bla bla bla bla bla.</p>
-                                </div>
-                            </li>
-                            <li>
-                                <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
-                                <div>
-                                    <h3>Nome do produto</h3>
-                                    <h4>Sem Observação.</h4>                    
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+const Kitchen: React.FC = () => {
 
-                <li>
-                    <header>
-                        <h2>Moisés Escurra</h2>
-                        <button>Dar baixa</button>
-                    </header>
-                    <div>
-                        <ul>
-                            <li>
-                                <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
-                                <div>
-                                    <h3>Nome do produto</h3>
-                                    <h4>Observações!</h4>
-                                    <p>bla bla bla bla bla bla bla bla.</p>
-                                </div>
-                            </li>
-                            <li>
-                                <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
-                                <div>
-                                    <h3>Nome do produto</h3>
-                                    <h4>Observações!</h4>
-                                    <p>bla bla bla bla bla bla bla bla.</p>
-                                </div>
-                            </li>
-                            <li>
-                                <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
-                                <div>
-                                    <h3>Nome do produto</h3>
-                                    <h4>Sem Observação.</h4>                    
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+    const [ orders, setOrders ] = useState([]);
 
-                <li>
-                    <header>
-                        <h2>Moisés Escurra</h2>
-                        <button>Dar baixa</button>
-                    </header>
-                    <div>
-                        <ul>
-                            <li>
-                                <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
-                                <div>
-                                    <h3>Nome do produto</h3>
-                                    <h4>Observações!</h4>
-                                    <p>bla bla bla bla bla bla bla bla.</p>
-                                </div>
-                            </li>
-                            <li>
-                                <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
-                                <div>
-                                    <h3>Nome do produto</h3>
-                                    <h4>Observações!</h4>
-                                    <p>bla bla bla bla bla bla bla bla.</p>
-                                </div>
-                            </li>
-                            <li>
-                                <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
-                                <div>
-                                    <h3>Nome do produto</h3>
-                                    <h4>Sem Observação.</h4>                    
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-            </ul>
-        </OrdersList>
-    </>
-);
+    useEffect(() => {
+        api.get('/order').then((response) => {
+            setOrders(response.data);
+        });
+        console.log(orders);
+    }, []);
+
+    console.log(orders);
+
+    return (
+        <>
+            <Header />
+            <Dashboard>
+                <h1><span>5</span> Pedidos a preparar :)</h1>
+            </Dashboard>
+            
+            <OrdersList>
+                <ul>
+                    <li>
+                        <header>
+                            <h2>Moisés Escurra</h2>
+                            <button>Dar baixa</button>
+                        </header>
+                        <div>
+                            <ul>
+                                <li>
+                                    <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
+                                    <div>
+                                        <h3>Nome do produto</h3>
+                                        <h4>Observações!</h4>
+                                        <p>bla bla bla bla bla bla bla bla.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
+                                    <div>
+                                        <h3>Nome do produto</h3>
+                                        <h4>Observações!</h4>
+                                        <p>bla bla bla bla bla bla bla bla.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
+                                    <div>
+                                        <h3>Nome do produto</h3>
+                                        <h4>Sem Observação.</h4>                    
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <li>
+                        <header>
+                            <h2>Moisés Escurra</h2>
+                            <button>Dar baixa</button>
+                        </header>
+                        <div>
+                            <ul>
+                                <li>
+                                    <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
+                                    <div>
+                                        <h3>Nome do produto</h3>
+                                        <h4>Observações!</h4>
+                                        <p>bla bla bla bla bla bla bla bla.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
+                                    <div>
+                                        <h3>Nome do produto</h3>
+                                        <h4>Observações!</h4>
+                                        <p>bla bla bla bla bla bla bla bla.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
+                                    <div>
+                                        <h3>Nome do produto</h3>
+                                        <h4>Sem Observação.</h4>                    
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <li>
+                        <header>
+                            <h2>Moisés Escurra</h2>
+                            <button>Dar baixa</button>
+                        </header>
+                        <div>
+                            <ul>
+                                <li>
+                                    <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
+                                    <div>
+                                        <h3>Nome do produto</h3>
+                                        <h4>Observações!</h4>
+                                        <p>bla bla bla bla bla bla bla bla.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
+                                    <div>
+                                        <h3>Nome do produto</h3>
+                                        <h4>Observações!</h4>
+                                        <p>bla bla bla bla bla bla bla bla.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
+                                    <div>
+                                        <h3>Nome do produto</h3>
+                                        <h4>Sem Observação.</h4>                    
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </OrdersList>
+        </>
+    )
+};
 
 export default Kitchen;

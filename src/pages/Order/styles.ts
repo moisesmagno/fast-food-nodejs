@@ -1,5 +1,16 @@
 import styled from 'styled-components';
 
+export const Alert = styled.div`
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    height: 40px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
+
 export const Section = styled.section`
     header {
         display: flex;
@@ -112,13 +123,13 @@ export const ListProducts = styled.section`
 
 export const ModalOrderClose = styled.section`
     width: 100%;
-    height: 100hv;
     background: #F5F5F5;
     position: absolute;
     z-index: 1000;
     top: 0;
     left: 0;
     right: 0;
+    bottom: 0;
     header {
         display: flex;
         justify-content: space-between;

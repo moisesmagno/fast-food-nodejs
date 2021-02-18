@@ -4,9 +4,7 @@ import { FaShoppingBasket, FaWindowClose } from 'icons-react/fa';
 
 import Nav from '../../components/Header';
 
-import { Section, ListProducts, ModalOrderClose, PaymentAndTotal, TypePayment, Total, ContentButton, Uploaded } from './styles';
-import { parseConfigFileTextToJson, textSpanIsEmpty } from 'typescript';
-import axios from 'axios';
+import { Alert, Section, ListProducts, ModalOrderClose, PaymentAndTotal, TypePayment, Total, ContentButton, Uploaded } from './styles';
 
 interface Products {
     id: number;
@@ -25,12 +23,14 @@ interface Order {
     image: string;
     pathImage: string;
     observation: string;
+    customerName: string;
 }
 
 const Order: React.FC = () => {
+    const [ orderOK, setOrderOk ] = useState<Boolean>(false);
     const [ modal, setModal] = useState<boolean>(false);
     const [ products, setProducts ] = useState<Products[]>([]);
-    const [ closedOrder, setClosedOrder ] = useState<Order[]>([]);
+    const [ customer, setCustomer ] = useState('');
     const [ priceTotal, setPriceTotal ] = useState(null);
     const [ valueInputCash, setValueInputCash ] = useState('');
     const [ changeMoney, setChangeMoney ] = useState<Number>(0);
@@ -73,6 +73,7 @@ const Order: React.FC = () => {
 
         //Add new atribute.
         Object.assign(orderData[0], {observation: null});
+        Object.assign(orderData[0], {customerName: null});
 
         const localStorageOrder = localStorage.getItem('@storage:order');
 
@@ -133,6 +134,7 @@ const Order: React.FC = () => {
     // Close Order.
     function closeOrder(): void {
         const localStorageOrder = JSON.parse(localStorage.getItem('@storage:order') || '');
+
         const data = document.querySelectorAll("textarea");
         var i = 0;
         for (i; i < data.length; i++) {
@@ -144,6 +146,7 @@ const Order: React.FC = () => {
                     if(order.id === id){
                         order.observation = valueTextarea;
                     }
+                    order.customerName = customer;
                 });
             }
         }
@@ -152,9 +155,34 @@ const Order: React.FC = () => {
 
     // Send Order
     function sendOrder(objOrder: Order): void {
-    
-        api.post('/order', objOrder).then((response) => {
-            console.log(response);
+
+        setCustomer('');
+        handleCloseModal();
+        setPriceTotal(null);
+        setValueInputCash('');
+        setChangeMoney(0);
+        setCashPaymentOption(false);
+        setCountOrderLocalStorage(0);
+        localStorage.setItem('@storage:order', '');
+
+        const headers = {
+            'Content-Type': 'application/json',
+        }
+
+        api.post('/order', JSON.stringify(objOrder), {
+            headers: headers
+        }).then((response) => {
+            
+            if(response.data === 1) {
+                setOrderOk(true);
+            }else{
+                console.log('Erro ao gravar dados.');
+            }
+
+            setTimeout(function(){ setOrderOk(false); }, 2000);
+        })
+        .catch((error) => {
+            console.log(error);
         });
     }
 
@@ -181,6 +209,8 @@ const Order: React.FC = () => {
     return (
         <>
             <Nav />
+            {orderOK && (<Alert>Pedido enviado com sucesso!</Alert>)}
+            
             <Section>
                 <header>
                     <form>
@@ -201,7 +231,7 @@ const Order: React.FC = () => {
             <ListProducts>            
                 { 
                     products.map(product => (
-                        <div key={ product.id }>
+                        <div key={ product.id } data-code-name={product.id+' '+product.name}>
                             <img src={ product.pathImage+''+product.image } alt={ product.name }/>
                             <div>
                                 <h2>#{ product.id+' - '+product.name }</h2>
@@ -226,7 +256,7 @@ const Order: React.FC = () => {
                     <section>
                         <ul>
                             <li>
-                                <input type="text" placeholder="Nome do cliente"/>
+                                <input type="text" id="customer-name" value={customer} onChange={(e) => setCustomer(e.target.value)} placeholder="Nome do cliente"/>
                             </li>
                             {
                                 orders.map((order) => (
