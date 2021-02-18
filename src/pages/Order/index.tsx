@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import api from '../../services/api';
 import { FaShoppingBasket, FaWindowClose } from 'icons-react/fa';
 
 import Nav from '../../components/Header';
 
 import { Section, ListProducts, ModalOrderClose, PaymentAndTotal, TypePayment, Total, ContentButton, Uploaded } from './styles';
+import { parseConfigFileTextToJson, textSpanIsEmpty } from 'typescript';
+import axios from 'axios';
 
 interface Products {
     id: number;
@@ -15,22 +17,158 @@ interface Products {
     pathImage: string;
 }
 
+interface Order {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    image: string;
+    pathImage: string;
+    observation: string;
+}
+
 const Order: React.FC = () => {
     const [ modal, setModal] = useState<boolean>(false);
-    const [products, setProducts] = useState<Products[]>([]);
+    const [ products, setProducts ] = useState<Products[]>([]);
+    const [ closedOrder, setClosedOrder ] = useState<Order[]>([]);
+    const [ priceTotal, setPriceTotal ] = useState(null);
+    const [ valueInputCash, setValueInputCash ] = useState('');
+    const [ changeMoney, setChangeMoney ] = useState<Number>(0);
+    const [ cashPaymentOption, setCashPaymentOption ] = useState<Boolean>(false);
+    const [ countOrderLocalStorage, setCountOrderLocalStorage] = useState(() => {
+        const storagedOrders = localStorage.getItem('@storage:order');
+        if (storagedOrders) {
+            return Object.keys(JSON.parse(storagedOrders)).length
+        } 
+        return 0;
+    });
+    const [ orders, setOrder ] = useState<Order[]>(() => {
+
+        const storagedOrders = localStorage.getItem('@storage:order');
+        
+        if (storagedOrders) {
+            return JSON.parse(storagedOrders);
+        } 
+
+        return [];
+    });
     
     useEffect(() => {
         api.get('/products').then((response) => {
             setProducts(response.data) 
         });
-
-        console.log(products);
     }, []);
 
-    console.log(products);
+    useEffect(() => {
+        const totalChange = (Number(valueInputCash) - Number(priceTotal))
+        setChangeMoney(totalChange);
+    },[valueInputCash]);
+
+    // Add new Order.
+    function addOrder(idOrder: number) {
+               
+        const orderData = products.filter((product) => {
+            return product.id === idOrder;
+        });
+
+        //Add new atribute.
+        Object.assign(orderData[0], {observation: null});
+
+        const localStorageOrder = localStorage.getItem('@storage:order');
+
+        if(localStorageOrder) {
+            const ordersList = JSON.parse(localStorageOrder);
+            
+            ordersList.push(orderData[0]);
+            localStorage.setItem('@storage:order', JSON.stringify(ordersList));
+            setCountOrderLocalStorage(Object.keys(ordersList).length);
+        } else {
+            localStorage.setItem('@storage:order', JSON.stringify(orderData));  
+            setCountOrderLocalStorage(1);
+        }
+    }
+
+    //Remove item of the order.
+    function removeItemOrder(id: Number){
+        const localStorageOrder = localStorage.getItem('@storage:order');
+        if (localStorageOrder) {
+            const itemsOrder = JSON.parse(localStorageOrder);
+
+            const newOrder = itemsOrder.filter((item: Order) => {
+                return item.id !== id;
+            });
+
+            localStorage.setItem('@storage:order', JSON.stringify(newOrder));
+
+            setOrder(newOrder);
+
+            setCountOrderLocalStorage(Object.keys(newOrder).length);
+        } else {
+            setOrder([]);
+            setCountOrderLocalStorage(0);
+        }
+    }
+
+    // Calculate price total of the order
+    function calculatePriceTotal() {
+        const localStorageOrder = localStorage.getItem('@storage:order');
+        const orderList = JSON.parse(localStorageOrder || '{}');
+        const totalPrice = orderList.reduce((total: number, item: Order) => {
+            return (total + Number(item.price));
+        }, 0);
+        
+        setPriceTotal(totalPrice);
+    }
+
+    // Show input Money.
+    function paymentCash(option: Boolean){
+        if(!option){
+            setValueInputCash('');
+            setChangeMoney(0);
+        }
+
+        setCashPaymentOption(option);
+    }
+
+    // Close Order.
+    function closeOrder(): void {
+        const localStorageOrder = JSON.parse(localStorage.getItem('@storage:order') || '');
+        const data = document.querySelectorAll("textarea");
+        var i = 0;
+        for (i; i < data.length; i++) {
+            const id = Number(data[i].getAttribute('data-id'));
+            const valueTextarea = data[i].value;
+
+            if (data[i].value){
+                localStorageOrder.map((order: Order) => {
+                    if(order.id === id){
+                        order.observation = valueTextarea;
+                    }
+                });
+            }
+        }
+        sendOrder(localStorageOrder);
+    }
+
+    // Send Order
+    function sendOrder(objOrder: Order): void {
+    
+        api.post('/order', objOrder).then((response) => {
+            console.log(response);
+        });
+    }
 
     // Open Modal
     function handleOpenModal(): void {
+        const localStorageOrder = localStorage.getItem('@storage:order');
+        
+        if (localStorageOrder){
+            const ordersList = JSON.parse(localStorageOrder);        
+            setOrder(ordersList);    
+        }
+
+        calculatePriceTotal();
+        
         setModal(true);
     }
 
@@ -38,6 +176,7 @@ const Order: React.FC = () => {
     function handleCloseModal(): void {
         setModal(false);
     }
+
 
     return (
         <>
@@ -50,10 +189,10 @@ const Order: React.FC = () => {
                     </form>
                     <div>
                         <div>
-                            <span>5</span>
+                            <span>{ countOrderLocalStorage }</span>
                             <FaShoppingBasket />
                         </div>
-                        <button onClick={handleOpenModal}>Ver pedido</button>
+                        {(countOrderLocalStorage > 0) && ( <button onClick={handleOpenModal}>Ver pedido</button> )}
                     </div>
                 </header>
             </Section>
@@ -63,13 +202,13 @@ const Order: React.FC = () => {
                 { 
                     products.map(product => (
                         <div key={ product.id }>
-                            <img src={ product.pathImage +''+product.image } alt={ product.name }/>
+                            <img src={ product.pathImage+''+product.image } alt={ product.name }/>
                             <div>
-                                <h2>{ product.name }</h2>
+                                <h2>#{ product.id+' - '+product.name }</h2>
                                 <p>{ product.description }</p>
                                 <span>{ product.price }</span>
                             </div>
-                            <button>
+                            <button onClick={() => addOrder(product.id)}>
                                 Adicionar
                             </button>
                         </div>
@@ -87,95 +226,59 @@ const Order: React.FC = () => {
                     <section>
                         <ul>
                             <li>
-                            <input type="text" placeholder="Nome do cliente"/>
+                                <input type="text" placeholder="Nome do cliente"/>
                             </li>
-                            <li>
-                                <div>
-                                    <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
-                                    <div>
-                                        <h2>Nome do produto</h2>
-                                        <p>Descrição do produto!</p>
-                                        <span>R$ 150,00</span>
-                                        <br/>
-                                        <textarea placeholder="Objservação"></textarea>
-                                    </div>
-                                    <button>
-                                        Remover
-                                    </button>
-                                </div>
-                            </li>
-                            <li>
-                                <div>
-                                    <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
-                                    <div>
-                                        <h2>Nome do produto</h2>
-                                        <p>Descrição do produto!</p>
-                                        <span>R$ 150,00</span>
-                                        <br/>
-                                        <textarea placeholder="Objservação"></textarea>
-                                    </div>
-                                    <button>
-                                        Remover
-                                    </button>
-                                </div>
-                            </li>
-                            <li>
-                                <div>
-                                    <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
-                                    <div>
-                                        <h2>Nome do produto</h2>
-                                        <p>Descrição do produto!</p>
-                                        <span>R$ 150,00</span>
-                                        <br/>
-                                        <textarea placeholder="Objservação"></textarea>
-                                    </div>
-                                    <button>
-                                        Remover
-                                    </button>
-                                </div>
-                            </li><li>
-                                <div>
-                                    <img src="/static/media/comida-2.41145139.png" alt="comida-2"/>
-                                    <div>
-                                        <h2>Nome do produto</h2>
-                                        <p>Descrição do produto!</p>
-                                        <span>R$ 150,00</span>
-                                        <br/>
-                                        <textarea placeholder="Objservação"></textarea>
-                                    </div>
-                                    <button>
-                                        Remover
-                                    </button>
-                                </div>
-                            </li>
+                            {
+                                orders.map((order) => (
+                                    <li key={order.id}>
+                                        <div>
+                                            <img src={order.pathImage+order.image} alt={ order.name }/>
+                                            <div>
+                                                <h2>{ order.name }</h2>
+                                                <p>{ order.description }</p>
+                                                <span>R$ { order.price }</span>
+                                                <br/>
+                                                <textarea id="observation" placeholder="Objservação" data-id={order.id}></textarea>
+                                            </div>
+                                            <button onClick={()=>removeItemOrder(order.id)}>
+                                                Remover
+                                            </button>
+                                        </div>
+                                    </li>
+                                ))
+                            }
                         </ul>
                     </section>
                     <PaymentAndTotal> 
                         <div>
                             <TypePayment>
                                 <h4>Formas de pagamentos:</h4>
-                                <li>
+                                <li onClick={() => paymentCash(false)}>
                                     <div>Cartão</div>
                                 </li>
-                                <li>
+                                <li onClick={() => paymentCash(true)}>
                                     <div>Dinheiro</div>
-                                    <div>R$ <input type="text" placeholder="0,00"/></div>
+                                    {cashPaymentOption && (<div>R$ <input type="text" onChange={(e) => setValueInputCash(e.target.value)} placeholder={valueInputCash}/></div>)}
                                 </li>
                             </TypePayment>
                             <Total>
                                 <li>
                                     <h4>Total</h4>
-                                    <h2>R$ 100,00</h2>
+                                    <h2>R$ { priceTotal }</h2>
                                 </li>
-                                <li>
-                                    <h5>Troco</h5>
-                                    <h3>R$ 20,00</h3>
-                                </li>    
+                                {
+                                    cashPaymentOption && (
+                                        <li>
+                                            <h5>Troco</h5>
+                                            <h3>R$ { changeMoney }</h3>
+                                        </li>    
+                                    )
+                                }
                             </Total>
                         </div>
                     </PaymentAndTotal>  
                     <ContentButton>
-                        <button>Finalizar pedido</button>
+                        <button onClick={() => closeOrder()}>Finalizar pedido</button>
                     </ContentButton>
                 </ModalOrderClose>
             )}

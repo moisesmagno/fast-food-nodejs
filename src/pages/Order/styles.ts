@@ -112,7 +112,7 @@ export const ListProducts = styled.section`
 
 export const ModalOrderClose = styled.section`
     width: 100%;
-    height: 100vh;
+    height: 100hv;
     background: #F5F5F5;
     position: absolute;
     z-index: 1000;
@@ -244,7 +244,6 @@ export const TypePayment = styled.ul`
             padding: 0;
             margin: 0;
             &:hover {
-                /* border: 1px solid #79EACE; */
                 border-left: 7px solid #79EACE;;
             }
         }
@@ -252,10 +251,10 @@ export const TypePayment = styled.ul`
             display: flex;
             justify-content: flex-start;
             align-items: center;
-            div:first-child {
+            div:nth-child(1)  {
                 margin: 0;
             }
-            div:last-child {
+            div:nth-child(2) {
                 display: flex;
                 margin: 0;
                 align-items: center;
@@ -320,5 +319,5 @@ export const Uploaded = styled.span`
     width: 100%;
     text-align: center;
     display: block;
-    margin-top: 70px;
+    margin-top: 100px;
 `;
