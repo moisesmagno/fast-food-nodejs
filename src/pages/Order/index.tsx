@@ -5,6 +5,7 @@ import { FaShoppingBasket, FaWindowClose } from 'icons-react/fa';
 import Nav from '../../components/Header';
 
 import { Alert, Section, ListProducts, ModalOrderClose, PaymentAndTotal, TypePayment, Total, ContentButton, Uploaded } from './styles';
+import userEvent from '@testing-library/user-event';
 
 interface Products {
     id: number;
@@ -13,6 +14,7 @@ interface Products {
     price: number;
     image: string;
     pathImage: string;
+    codNameProducto: string;
 }
 
 interface Order {
@@ -27,6 +29,7 @@ interface Order {
 }
 
 const Order: React.FC = () => {
+    const [ search, setSearch ] = useState('');
     const [ orderOK, setOrderOk ] = useState<Boolean>(false);
     const [ modal, setModal] = useState<boolean>(false);
     const [ products, setProducts ] = useState<Products[]>([]);
@@ -63,6 +66,18 @@ const Order: React.FC = () => {
         const totalChange = (Number(valueInputCash) - Number(priceTotal))
         setChangeMoney(totalChange);
     },[valueInputCash]);
+
+
+    function filterProducts(event: FormEvent<HTMLFormElement>): void{
+        event.preventDefault();
+
+        const productsFind = products.filter((product)=>{
+            return !!product.codNameProducto.indexOf(search);
+        });
+
+        setProducts(productsFind);
+        console.log(productsFind);
+    }
 
     // Add new Order.
     function addOrder(idOrder: number) {
@@ -155,7 +170,7 @@ const Order: React.FC = () => {
 
     // Send Order
     function sendOrder(objOrder: Order): void {
-
+        setOrderOk(true);
         setCustomer('');
         handleCloseModal();
         setPriceTotal(null);
@@ -174,12 +189,10 @@ const Order: React.FC = () => {
         }).then((response) => {
             
             if(response.data === 1) {
-                setOrderOk(true);
+                setOrderOk(false);
             }else{
                 console.log('Erro ao gravar dados.');
             }
-
-            setTimeout(function(){ setOrderOk(false); }, 2000);
         })
         .catch((error) => {
             console.log(error);
@@ -213,8 +226,8 @@ const Order: React.FC = () => {
             
             <Section>
                 <header>
-                    <form>
-                        <input type="text" placeholder="Código ou nome do produto"/>
+                    <form onSubmit={filterProducts}>
+                        <input type="number" placeholder="Código ou nome do produto" onChange={(e) => setSearch(e.target.value)}/>
                         <button>Buscar</button>
                     </form>
                     <div>

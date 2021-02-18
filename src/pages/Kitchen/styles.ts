@@ -33,7 +33,7 @@ export const OrdersList = styled.section`
                 }
                 button {
                     background: #79EACE;
-                    width: 100px;
+                    width: 120px;
                     height: 50px;
                     color: #3a3a3a;
                     border-radius: 5px;
@@ -73,4 +73,16 @@ export const OrdersList = styled.section`
             }
         }
     }
+`;
+
+export const Alert = styled.div`
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    height: 40px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
 `;

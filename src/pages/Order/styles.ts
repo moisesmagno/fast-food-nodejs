@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const Alert = styled.div`
+    margin-top: 20px;
     background: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
@@ -326,7 +327,7 @@ export const ContentButton = styled.section`
 export const Uploaded = styled.span`
     font-weight: bold;
     font-size: 30px;
-    color: rgba(0,0,0,0.6);
+    color: #018C97;
     width: 100%;
     text-align: center;
     display: block;

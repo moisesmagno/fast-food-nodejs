@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8080/fast-food-laravel/public/api/v1',
+    baseURL: 'http://192.168.64.3/fast-food-laravel/public/api/v1',
 });
 
 export default api;
